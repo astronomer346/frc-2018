@@ -7,21 +7,30 @@
 
 package frc.team166.robot.subsystems;
 
+import java.util.Set;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.vision.VisionRunner;
+import edu.wpi.first.wpilibj.vision.VisionThread;
+import edu.wpi.first.wpilibj.vision.VisionRunner.Listener;
 import frc.team166.chopshoplib.commands.SubsystemCommand;
-
-import java.util.Set;;
+import frc.team166.robot.subsystems.GripPipeline;
 
 /**
  * An example subsystem.  You can replace me with your own Subsystem.
  */
 public class Vision extends Subsystem {
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("/GRIP/VisionTarget");
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("VisionTarget");
+
+    final Listener<GripPipeline> listener;
+    final VisionRunner<GripPipeline> gripRunner;
 
     public Vision() {
         addChild(getTableKeys());
+        new VisionThread(CameraServer.getInstance(), new GripPipeline(), listener);
     }
 
     public Set<String> getTableKeys() {

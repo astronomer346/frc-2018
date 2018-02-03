@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.team166.robot.commands.ExampleCommand;
 import frc.team166.robot.subsystems.Drive;
 import frc.team166.robot.subsystems.ExampleSubsystem;
+import frc.team166.robot.subsystems.GripPipeline;
 import frc.team166.robot.subsystems.Manipulator;
+import frc.team166.robot.subsystems.Vision;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -30,12 +32,13 @@ public class Robot extends TimedRobot {
     //this just adds a drive subsystem
     public static final Drive drive = new Drive();
     public static final Manipulator manipulator = new Manipulator();
+    public static final Vision vision = new Vision();
+    public static final GripPipeline grip = new GripPipeline();
     public static OI m_oi;
 
     Command m_autonomousCommand;
     SendableChooser<Command> m_chooser = new SendableChooser<>();
 
-    
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -47,7 +50,6 @@ public class Robot extends TimedRobot {
         // chooser.addObject("My Auto", new MyAutoCommand());
         SmartDashboard.putData("Auto mode", m_chooser);
         CameraServer.getInstance().startAutomaticCapture();
-
 
     }
 
