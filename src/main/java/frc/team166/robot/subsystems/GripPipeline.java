@@ -1,21 +1,18 @@
-package frc.team166.robot.subsystems;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.HashMap;
 
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfKeyPoint;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
+import org.opencv.core.*;
+import org.opencv.core.Core.*;
 import org.opencv.features2d.FeatureDetector;
-import org.opencv.imgproc.Imgproc;
-import edu.wpi.first.wpilibj.vision.VisionPipeline;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.*;
+import org.opencv.objdetect.*;
 
 /**
 * GripPipeline class.
@@ -24,13 +21,12 @@ import edu.wpi.first.wpilibj.vision.VisionPipeline;
 *
 * @author GRIP
 */
-public class GripPipeline implements VisionPipeline {
+public class GripPipeline {
 
 	//Outputs
 	private Mat hsvThresholdOutput = new Mat();
 	private Mat cvErodeOutput = new Mat();
 	private Mat maskOutput = new Mat();
-	private MatOfKeyPoint findBlobsOutput = new MatOfKeyPoint();
 	private ArrayList<MatOfPoint> findContoursOutput = new ArrayList<MatOfPoint>();
 
 	static {
@@ -43,9 +39,9 @@ public class GripPipeline implements VisionPipeline {
 	public void process(Mat source0) {
 		// Step HSV_Threshold0:
 		Mat hsvThresholdInput = source0;
-		double[] hsvThresholdHue = { 98.74100719424462, 110.88737201365187 };
-		double[] hsvThresholdSaturation = { 89.43345323741006, 165.7935153583618 };
-		double[] hsvThresholdValue = { 171.98741007194246, 213.66040955631397 };
+		double[] hsvThresholdHue = {98.74100719424462, 110.88737201365187};
+		double[] hsvThresholdSaturation = {89.43345323741006, 165.7935153583618};
+		double[] hsvThresholdValue = {171.98741007194246, 213.66040955631397};
 		hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, hsvThresholdOutput);
 
 		// Step CV_erode0:
@@ -55,20 +51,12 @@ public class GripPipeline implements VisionPipeline {
 		double cvErodeIterations = 1.0;
 		int cvErodeBordertype = Core.BORDER_CONSTANT;
 		Scalar cvErodeBordervalue = new Scalar(-1);
-		cvErode(cvErodeSrc, cvErodeKernel, cvErodeAnchor, cvErodeIterations, cvErodeBordertype, cvErodeBordervalue,
-				cvErodeOutput);
+		cvErode(cvErodeSrc, cvErodeKernel, cvErodeAnchor, cvErodeIterations, cvErodeBordertype, cvErodeBordervalue, cvErodeOutput);
 
 		// Step Mask0:
 		Mat maskInput = source0;
 		Mat maskMask = cvErodeOutput;
 		mask(maskInput, maskMask, maskOutput);
-
-		// Step Find_Blobs0:
-		Mat findBlobsInput = maskOutput;
-		double findBlobsMinArea = 1.0;
-		double[] findBlobsCircularity = { 0.0, 1.0 };
-		boolean findBlobsDarkBlobs = false;
-		findBlobs(findBlobsInput, findBlobsMinArea, findBlobsCircularity, findBlobsDarkBlobs, findBlobsOutput);
 
 		// Step Find_Contours0:
 		Mat findContoursInput = cvErodeOutput;
@@ -102,20 +90,13 @@ public class GripPipeline implements VisionPipeline {
 	}
 
 	/**
-	 * This method is a generated getter for the output of a Find_Blobs.
-	 * @return MatOfKeyPoint output from Find_Blobs.
-	 */
-	public MatOfKeyPoint findBlobsOutput() {
-		return findBlobsOutput;
-	}
-
-	/**
 	 * This method is a generated getter for the output of a Find_Contours.
 	 * @return ArrayList<MatOfPoint> output from Find_Contours.
 	 */
 	public ArrayList<MatOfPoint> findContoursOutput() {
 		return findContoursOutput;
 	}
+
 
 	/**
 	 * Segment an image based on hue, saturation, and value ranges.
@@ -126,9 +107,11 @@ public class GripPipeline implements VisionPipeline {
 	 * @param val The min and max value
 	 * @param output The image in which to store the output.
 	 */
-	private void hsvThreshold(Mat input, double[] hue, double[] sat, double[] val, Mat out) {
+	private void hsvThreshold(Mat input, double[] hue, double[] sat, double[] val,
+	    Mat out) {
 		Imgproc.cvtColor(input, out, Imgproc.COLOR_BGR2HSV);
-		Core.inRange(out, new Scalar(hue[0], sat[0], val[0]), new Scalar(hue[1], sat[1], val[1]), out);
+		Core.inRange(out, new Scalar(hue[0], sat[0], val[0]),
+			new Scalar(hue[1], sat[1], val[1]), out);
 	}
 
 	/**
@@ -141,18 +124,18 @@ public class GripPipeline implements VisionPipeline {
 	 * @param borderValue value to be used for a constant border.
 	 * @param dst Output Image.
 	 */
-	private void cvErode(Mat src, Mat kernel, Point anchor, double iterations, int borderType, Scalar borderValue,
-			Mat dst) {
+	private void cvErode(Mat src, Mat kernel, Point anchor, double iterations,
+		int borderType, Scalar borderValue, Mat dst) {
 		if (kernel == null) {
 			kernel = new Mat();
 		}
 		if (anchor == null) {
-			anchor = new Point(-1, -1);
+			anchor = new Point(-1,-1);
 		}
 		if (borderValue == null) {
 			borderValue = new Scalar(-1);
 		}
-		Imgproc.erode(src, dst, kernel, anchor, (int) iterations, borderType, borderValue);
+		Imgproc.erode(src, dst, kernel, anchor, (int)iterations, borderType, borderValue);
 	}
 
 	/**
@@ -168,82 +151,29 @@ public class GripPipeline implements VisionPipeline {
 	}
 
 	/**
-	 * Detects groups of pixels in an image.
-	 * @param input The image on which to perform the find blobs.
-	 * @param minArea The minimum size of a blob that will be found
-	 * @param circularity The minimum and maximum circularity of blobs that will be found
-	 * @param darkBlobs The boolean that determines if light or dark blobs are found.
-	 * @param blobList The output where the MatOfKeyPoint is stored.
-	 */
-	private void findBlobs(Mat input, double minArea, double[] circularity, Boolean darkBlobs, MatOfKeyPoint blobList) {
-		FeatureDetector blobDet = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
-		try {
-			File tempFile = File.createTempFile("config", ".xml");
-
-			StringBuilder config = new StringBuilder();
-
-			config.append("<?xml version=\"1.0\"?>\n");
-			config.append("<opencv_storage>\n");
-			config.append("<thresholdStep>10.</thresholdStep>\n");
-			config.append("<minThreshold>50.</minThreshold>\n");
-			config.append("<maxThreshold>220.</maxThreshold>\n");
-			config.append("<minRepeatability>2</minRepeatability>\n");
-			config.append("<minDistBetweenBlobs>10.</minDistBetweenBlobs>\n");
-			config.append("<filterByColor>1</filterByColor>\n");
-			config.append("<blobColor>");
-			config.append((darkBlobs ? 0 : 255));
-			config.append("</blobColor>\n");
-			config.append("<filterByArea>1</filterByArea>\n");
-			config.append("<minArea>");
-			config.append(minArea);
-			config.append("</minArea>\n");
-			config.append("<maxArea>");
-			config.append(Integer.MAX_VALUE);
-			config.append("</maxArea>\n");
-			config.append("<filterByCircularity>1</filterByCircularity>\n");
-			config.append("<minCircularity>");
-			config.append(circularity[0]);
-			config.append("</minCircularity>\n");
-			config.append("<maxCircularity>");
-			config.append(circularity[1]);
-			config.append("</maxCircularity>\n");
-			config.append("<filterByInertia>1</filterByInertia>\n");
-			config.append("<minInertiaRatio>0.1</minInertiaRatio>\n");
-			config.append("<maxInertiaRatio>" + Integer.MAX_VALUE + "</maxInertiaRatio>\n");
-			config.append("<filterByConvexity>1</filterByConvexity>\n");
-			config.append("<minConvexity>0.95</minConvexity>\n");
-			config.append("<maxConvexity>" + Integer.MAX_VALUE + "</maxConvexity>\n");
-			config.append("</opencv_storage>\n");
-			FileWriter writer;
-			writer = new FileWriter(tempFile, false);
-			writer.write(config.toString());
-			writer.close();
-			blobDet.read(tempFile.getPath());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		blobDet.detect(input, blobList);
-	}
-
-	/**
 	 * Sets the values of pixels in a binary image to their distance to the nearest black pixel.
 	 * @param input The image on which to perform the Distance Transform.
 	 * @param type The Transform.
 	 * @param maskSize the size of the mask.
 	 * @param output The image in which to store the output.
 	 */
-	private void findContours(Mat input, boolean externalOnly, List<MatOfPoint> contours) {
+	private void findContours(Mat input, boolean externalOnly,
+		List<MatOfPoint> contours) {
 		Mat hierarchy = new Mat();
 		contours.clear();
 		int mode;
 		if (externalOnly) {
 			mode = Imgproc.RETR_EXTERNAL;
-		} else {
+		}
+		else {
 			mode = Imgproc.RETR_LIST;
 		}
 		int method = Imgproc.CHAIN_APPROX_SIMPLE;
 		Imgproc.findContours(input, contours, hierarchy, mode, method);
 	}
 
+
+
+
 }
+
