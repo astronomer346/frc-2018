@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.HashMap;
 
+import edu.wpi.first.wpilibj.vision.VisionPipeline;
+
 import org.opencv.core.*;
 import org.opencv.core.Core.*;
 import org.opencv.features2d.FeatureDetector;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.*;
 import org.opencv.objdetect.*;
-
-import edu.wpi.first.wpilibj.vision.VisionPipeline;
 
 /**
 * GripPipeline class.
@@ -38,12 +38,12 @@ public class GripPipeline implements VisionPipeline {
 	/**
 	 * This is the primary method that runs the entire pipeline and updates the outputs.
 	 */
-	public void process(Mat source0) {
+	@Override	public void process(Mat source0) {
 		// Step HSV_Threshold0:
 		Mat hsvThresholdInput = source0;
-		double[] hsvThresholdHue = { 98.74100719424462, 110.88737201365187 };
-		double[] hsvThresholdSaturation = { 89.43345323741006, 165.7935153583618 };
-		double[] hsvThresholdValue = { 171.98741007194246, 213.66040955631397 };
+		double[] hsvThresholdHue = {98.74100719424462, 110.88737201365187};
+		double[] hsvThresholdSaturation = {89.43345323741006, 165.7935153583618};
+		double[] hsvThresholdValue = {171.98741007194246, 213.66040955631397};
 		hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, hsvThresholdOutput);
 
 		// Step CV_erode0:
@@ -53,8 +53,7 @@ public class GripPipeline implements VisionPipeline {
 		double cvErodeIterations = 1.0;
 		int cvErodeBordertype = Core.BORDER_CONSTANT;
 		Scalar cvErodeBordervalue = new Scalar(-1);
-		cvErode(cvErodeSrc, cvErodeKernel, cvErodeAnchor, cvErodeIterations, cvErodeBordertype, cvErodeBordervalue,
-				cvErodeOutput);
+		cvErode(cvErodeSrc, cvErodeKernel, cvErodeAnchor, cvErodeIterations, cvErodeBordertype, cvErodeBordervalue, cvErodeOutput);
 
 		// Step Mask0:
 		Mat maskInput = source0;
@@ -100,6 +99,7 @@ public class GripPipeline implements VisionPipeline {
 		return findContoursOutput;
 	}
 
+
 	/**
 	 * Segment an image based on hue, saturation, and value ranges.
 	 *
@@ -109,9 +109,11 @@ public class GripPipeline implements VisionPipeline {
 	 * @param val The min and max value
 	 * @param output The image in which to store the output.
 	 */
-	private void hsvThreshold(Mat input, double[] hue, double[] sat, double[] val, Mat out) {
+	private void hsvThreshold(Mat input, double[] hue, double[] sat, double[] val,
+	    Mat out) {
 		Imgproc.cvtColor(input, out, Imgproc.COLOR_BGR2HSV);
-		Core.inRange(out, new Scalar(hue[0], sat[0], val[0]), new Scalar(hue[1], sat[1], val[1]), out);
+		Core.inRange(out, new Scalar(hue[0], sat[0], val[0]),
+			new Scalar(hue[1], sat[1], val[1]), out);
 	}
 
 	/**
@@ -124,18 +126,18 @@ public class GripPipeline implements VisionPipeline {
 	 * @param borderValue value to be used for a constant border.
 	 * @param dst Output Image.
 	 */
-	private void cvErode(Mat src, Mat kernel, Point anchor, double iterations, int borderType, Scalar borderValue,
-			Mat dst) {
+	private void cvErode(Mat src, Mat kernel, Point anchor, double iterations,
+		int borderType, Scalar borderValue, Mat dst) {
 		if (kernel == null) {
 			kernel = new Mat();
 		}
 		if (anchor == null) {
-			anchor = new Point(-1, -1);
+			anchor = new Point(-1,-1);
 		}
 		if (borderValue == null) {
 			borderValue = new Scalar(-1);
 		}
-		Imgproc.erode(src, dst, kernel, anchor, (int) iterations, borderType, borderValue);
+		Imgproc.erode(src, dst, kernel, anchor, (int)iterations, borderType, borderValue);
 	}
 
 	/**
@@ -157,17 +159,23 @@ public class GripPipeline implements VisionPipeline {
 	 * @param maskSize the size of the mask.
 	 * @param output The image in which to store the output.
 	 */
-	private void findContours(Mat input, boolean externalOnly, List<MatOfPoint> contours) {
+	private void findContours(Mat input, boolean externalOnly,
+		List<MatOfPoint> contours) {
 		Mat hierarchy = new Mat();
 		contours.clear();
 		int mode;
 		if (externalOnly) {
 			mode = Imgproc.RETR_EXTERNAL;
-		} else {
+		}
+		else {
 			mode = Imgproc.RETR_LIST;
 		}
 		int method = Imgproc.CHAIN_APPROX_SIMPLE;
 		Imgproc.findContours(input, contours, hierarchy, mode, method);
 	}
 
+
+
+
 }
+

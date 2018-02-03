@@ -52,30 +52,6 @@
       </grip:Input>
       <grip:Output step="3" socket="0" previewed="true"/>
     </grip:Step>
-    <grip:Step name="NTPublish ContoursReport">
-      <grip:Input step="4" socket="0"/>
-      <grip:Input step="4" socket="1">
-        <value>VisionTarget</value>
-      </grip:Input>
-      <grip:Input step="4" socket="2">
-        <value>true</value>
-      </grip:Input>
-      <grip:Input step="4" socket="3">
-        <value>true</value>
-      </grip:Input>
-      <grip:Input step="4" socket="4">
-        <value>true</value>
-      </grip:Input>
-      <grip:Input step="4" socket="5">
-        <value>true</value>
-      </grip:Input>
-      <grip:Input step="4" socket="6">
-        <value>true</value>
-      </grip:Input>
-      <grip:Input step="4" socket="7">
-        <value>true</value>
-      </grip:Input>
-    </grip:Step>
   </steps>
   <connections>
     <grip:Connection>
@@ -97,10 +73,6 @@
     <grip:Connection>
       <grip:Output step="1" socket="0" previewed="true"/>
       <grip:Input step="3" socket="0"/>
-    </grip:Connection>
-    <grip:Connection>
-      <grip:Output step="3" socket="0" previewed="true"/>
-      <grip:Input step="4" socket="0"/>
     </grip:Connection>
   </connections>
   <settings>
