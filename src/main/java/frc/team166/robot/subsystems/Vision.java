@@ -14,10 +14,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.vision.VisionRunner;
-import edu.wpi.first.wpilibj.vision.VisionThread;
 import edu.wpi.first.wpilibj.vision.VisionRunner.Listener;
 import frc.team166.chopshoplib.commands.SubsystemCommand;
-import frc.team166.robot.subsystems.GripPipeline;
 
 /**
  * An example subsystem.  You can replace me with your own Subsystem.
@@ -28,9 +26,11 @@ public class Vision extends Subsystem {
     final Listener<GripPipeline> listener;
     final VisionRunner<GripPipeline> gripRunner;
 
+    final CameraServer camera;
+
     public Vision() {
         addChild(getTableKeys());
-        new VisionThread(CameraServer.getInstance(), new GripPipeline(), listener);
+        //      new VisionThread(CameraServer.getInstance(), new GripPipeline(), listener);
     }
 
     public Set<String> getTableKeys() {
